@@ -98,6 +98,13 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // state information for A or B.
     // Also add any necessary methods (e.g. checksum of a String)
 
+    /**A's states **/
+    private Packet[] SWS; //sender_window
+    private boolean[] ACK;
+    private LinkedList<Packet> sender_buffer = new LinkedList<>();
+    private int send_base;
+    private int next_seq;
+
     // This is the constructor.  Don't touch!
     public StudentNetworkSimulator(int numMessages,
                                    double loss,
