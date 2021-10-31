@@ -108,8 +108,8 @@ public class StudentNetworkSimulator extends NetworkSimulator
     private int RWS;    // receive window size
     private int LPA;    // last packet acceptable
     private int NPE;    // next packet expected
+    private int b_seqnum;   // b's seqnum
     private LinkedList<Packet> receiver_buffer; // buffer of receiving packets from layer 3
-    private LinkedList<Packet> upload_buffer;   // buffer of uploading packets to layer 5
 
     // output checksum
     private int Checksumming(Packet packet){
@@ -190,13 +190,26 @@ public class StudentNetworkSimulator extends NetworkSimulator
 
     }
     
-    // This routine will be called whenever a packet sent from the B-side 
+    // This routine will be called whenever a packet sent from the A-side 
     // (i.e. as a result of a toLayer3() being done by an A-side procedure)
     // arrives at the B-side.  "packet" is the (possibly corrupted) packet
     // sent from the A-side.
     protected void bInput(Packet packet)
     {
+        // if (isCorrupted(packet))
+        // {
+            
+        //     return;
+        // }
 
+        receiver_buffer.add(packet);
+        b_seqnum = (b_seqnum + 1) % LimitSeqNo;
+        int b_acknum = packet.getSeqnum() + 1;
+        int b_checksum = b_seqnum + packet.getSeqnum();
+        Packet sndpkt = new Packet(b_seqnum, b_acknum, b_checksum);
+        toLayer3(B, sndpkt);
+
+        return;
     }
     
     // This routine will be called once, before any of your other B-side 
@@ -205,7 +218,10 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // of entity B).
     protected void bInit()
     {
-
+        RWS = WindowSize;
+        NPE = 0;
+        LPA = 0;
+        b_seqnum = 0;
     }
 
     // Use to print final statistics
