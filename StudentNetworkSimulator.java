@@ -98,18 +98,19 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // state information for A or B.
     // Also add any necessary methods (e.g. checksum of a String)
 
-        /**A's states **/
+    /**A's states **/
 
     private LinkedList<Packet> sender_buffer;
     private int send_base;
     private int next_seq;
 
-    /**B's states **/
-    private int LPA; //last packet acceptable
-    private int NPE; //next packet expected
+    // B variables
+    private int RWS;    // receive window size
+    private int LPA;    // last packet acceptable
+    private int NPE;    // next packet expected
     private LinkedList<Packet> receiver_buffer;
-//    private boolean[] RWS; //receiver_window
 
+    // output checksum
     public int Checksumming(Packet packet){
         char [] payload = packet.getPayload().toCharArray();
         int checksum = packet.getSeqnum() + packet.getAcknum();
