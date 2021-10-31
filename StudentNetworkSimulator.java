@@ -108,7 +108,8 @@ public class StudentNetworkSimulator extends NetworkSimulator
     private int RWS;    // receive window size
     private int LPA;    // last packet acceptable
     private int NPE;    // next packet expected
-    private LinkedList<Packet> receiver_buffer;
+    private LinkedList<Packet> receiver_buffer; // buffer of receiving packets from layer 3
+    private LinkedList<Packet> upload_buffer;   // buffer of uploading packets to layer 5
 
     // output checksum
     public int Checksumming(Packet packet){
