@@ -100,7 +100,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
 
     /**A's states **/
 
-    private LinkedList<Packet> sender_buffer;
+    private LinkedList<Packet> sender_buffer = new LinkedList<>();
 //    private Packet[] SWS; //Sender Window
     private int send_base;
     private int next_seq;
@@ -110,7 +110,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
     private int LPA;    // last packet acceptable
     private int NPE;    // next packet expected
     private int b_seqnum;   // b's seqnum
-    private LinkedList<Packet> receiver_buffer; // buffer of receiving packets from layer 3
+    private LinkedList<Packet> receiver_buffer = new LinkedList<>(); // buffer of receiving packets from layer 3
 
     // output checksum
     private int Checksumming(Packet packet){
@@ -204,7 +204,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // of entity A).
     protected void aInit()
     {
-        LinkedList<Packet> sender_buffer = new LinkedList<>();
+        
 //        SWS = new Packet[WindowSize];
         send_base = 0;
         next_seq = 0;
@@ -228,7 +228,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         receiver_buffer.add(packet);
         b_seqnum = (b_seqnum + 1) % LimitSeqNo;
         int b_acknum = packet.getSeqnum() + 1;
-        int b_checksum = b_seqnum + packet.getSeqnum();
+        int b_checksum = b_seqnum + b_acknum;
         Packet sndpkt = new Packet(b_seqnum, b_acknum, b_checksum);
         toLayer3(B, sndpkt);
 
@@ -244,7 +244,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         RWS = WindowSize;
         NPE = 0;
         LPA = 0;
-        b_seqnum = 0;
+        b_seqnum = -1;
     }
 
     // Use to print final statistics
