@@ -98,12 +98,26 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // state information for A or B.
     // Also add any necessary methods (e.g. checksum of a String)
 
-    /**A's states **/
-    private Packet[] SWS; //sender_window
-    private boolean[] ACK;
-    private LinkedList<Packet> sender_buffer = new LinkedList<>();
+        /**A's states **/
+
+    private LinkedList<Packet> sender_buffer;
     private int send_base;
     private int next_seq;
+
+    /**B's states **/
+    private int LPA; //last packet acceptable
+    private int NPE; //next packet expected
+    private LinkedList<Packet> receiver_buffer;
+//    private boolean[] RWS; //receiver_window
+
+    public int Checksumming(Packet packet){
+        char [] payload = packet.getPayload().toCharArray();
+        int checksum = packet.getSeqnum() + packet.getAcknum();
+        for(char c : payload) {
+            checksum += (int) c;
+        }
+        return checksum;
+    }
 
     // This is the constructor.  Don't touch!
     public StudentNetworkSimulator(int numMessages,
@@ -128,6 +142,16 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the receiving upper layer.
     protected void aOutput(Message message)
     {
+        Packet sender_packet = new Packet(next_seq,0,-1,message.getData());
+        sender_packet.setChecksum(Checksumming(sender_packet));
+        sender_buffer.add(sender_packet);
+        for(;next_seq <sender_buffer.size() && next_seq<send_base + WindowSize;next_seq++){
+            if(sender_buffer.get(next_seq)!= null){
+                toLayer3(A, sender_buffer.get(next_seq));
+                stopTimer(A);
+                startTimer(A, RxmtInterval);
+            }
+        }
 
     }
     
