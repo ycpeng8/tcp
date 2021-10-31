@@ -101,9 +101,10 @@ public class StudentNetworkSimulator extends NetworkSimulator
     /**A's states **/
 
     private LinkedList<Packet> sender_buffer;
+//    private Packet[] SWS; //Sender Window
     private int send_base;
     private int next_seq;
-
+    private int LPS; //Last packet sent
     // B variables
     private int RWS;    // receive window size
     private int LPA;    // last packet acceptable
@@ -150,12 +151,17 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the receiving upper layer.
     protected void aOutput(Message message)
     {
+        next_seq = LPS % LimitSeqNo;
         Packet sender_packet = new Packet(next_seq,0,-1,message.getData());
         sender_packet.setChecksum(Checksumming(sender_packet));
         sender_buffer.add(sender_packet);
-        for(;next_seq <sender_buffer.size() && next_seq<send_base + WindowSize;next_seq++){
-            if(sender_buffer.get(next_seq)!= null){
-                toLayer3(A, sender_buffer.get(next_seq));
+        for(;LPS <sender_buffer.size() && LPS < send_base + WindowSize;LPS++){
+            if(sender_buffer.get(LPS)!= null){
+//                if(SWS[LPS % WindowSize] == null){
+//                    SWS[LPS % WindowSize] = sender_buffer.get(LPS);
+//                }
+                toLayer3(A, sender_buffer.get(LPS));
+//                LPS++;
                 stopTimer(A);
                 startTimer(A, RxmtInterval);
             }
@@ -169,6 +175,17 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // sent from the B-side.
     protected void aInput(Packet packet)
     {
+        if(Checksumming(packet) == packet.getChecksum()){
+            if(packet.getAcknum() >= send_base+1){
+                stopTimer(A);
+                send_base = packet.getAcknum();
+                LPS=send_base+WindowSize;
+            }
+        }else{
+            toLayer3(A,sender_buffer.get(send_base));
+            stopTimer(A);
+            startTimer(A, RxmtInterval);
+        }
 
     }
     
@@ -187,6 +204,12 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // of entity A).
     protected void aInit()
     {
+        LinkedList<Packet> sender_buffer = new LinkedList<>();
+//        SWS = new Packet[WindowSize];
+        send_base = 0;
+        next_seq = 0;
+        LPS = 0;
+        LimitSeqNo = 2 * WindowSize;
 
     }
     
