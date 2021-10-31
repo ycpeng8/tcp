@@ -112,13 +112,19 @@ public class StudentNetworkSimulator extends NetworkSimulator
     private LinkedList<Packet> upload_buffer;   // buffer of uploading packets to layer 5
 
     // output checksum
-    public int Checksumming(Packet packet){
+    private int Checksumming(Packet packet){
         char [] payload = packet.getPayload().toCharArray();
         int checksum = packet.getSeqnum() + packet.getAcknum();
         for(char c : payload) {
             checksum += (int) c;
         }
         return checksum;
+    }
+
+    // check if corrupted
+    private boolean isCorrupted(Packet packet)
+    {
+        return packet.getChecksum() != Checksumming(packet);
     }
 
     // This is the constructor.  Don't touch!
@@ -132,9 +138,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
                                    double delay)
     {
         super(numMessages, loss, corrupt, avgDelay, trace, seed);
-	WindowSize = winsize;
-	LimitSeqNo = winsize*2; // set appropriately; assumes SR here!
-	RxmtInterval = delay;
+	    WindowSize = winsize;
+	    LimitSeqNo = winsize*2; // set appropriately; assumes SR here!
+	    RxmtInterval = delay;
     }
 
     
