@@ -151,10 +151,13 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the receiving upper layer.
     protected void aOutput(Message message)
     {
+        System.out.println("+++++++++++++++++");
         next_seq = LPS % LimitSeqNo;
         Packet sender_packet = new Packet(next_seq,0,-1,message.getData());
         sender_packet.setChecksum(Checksumming(sender_packet));
         sender_buffer.add(sender_packet);
+        System.out.println("sender buffer size is "+sender_buffer.size());
+        System.out.println("LPS is "+LPS);
         for(;LPS <sender_buffer.size() && LPS < send_base + WindowSize;LPS++){
             if(sender_buffer.get(LPS)!= null){
 //                if(SWS[LPS % WindowSize] == null){
@@ -179,7 +182,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
             if(packet.getAcknum() >= send_base+1){
                 stopTimer(A);
                 send_base = packet.getAcknum();
-                LPS=send_base+WindowSize;
+                // LPS=send_base+WindowSize-1;
             }
         }else{
             toLayer3(A,sender_buffer.get(send_base));
