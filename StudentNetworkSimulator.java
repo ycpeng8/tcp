@@ -179,11 +179,20 @@ public class StudentNetworkSimulator extends NetworkSimulator
     protected void aInput(Packet packet)
     {
         if(Checksumming(packet) == packet.getChecksum()){
-            if(packet.getAcknum() >= send_base+1){
+            int send_base_Seq = send_base % LimitSeqNo;
+            int tmpAck = packet.getAcknum();
+            if(tmpAck >= send_base_Seq+1){
                 stopTimer(A);
-                send_base = packet.getAcknum();
-                // LPS=send_base+WindowSize-1;
+                
+                send_base += (tmpAck - send_base_Seq) ;
             }
+            // if(packet.getAcknum() >= send_base+1){
+            //     stopTimer(A);
+                
+                
+            //     send_base = packet.getAcknum();
+            //     // LPS=send_base+WindowSize-1;
+            // }
         }else{
             toLayer3(A,sender_buffer.get(send_base));
             stopTimer(A);
