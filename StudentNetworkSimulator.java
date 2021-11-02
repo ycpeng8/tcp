@@ -206,6 +206,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 stopTimer(A);
                 send_base += (tmpAck - send_base_Seq) ;
             }
+            else{
+                toLayer3(A,sender_buffer.get(send_base));
+                stopTimer(A);
+                startTimer(A, RxmtInterval);
+            }
             // if(packet.getAcknum() >= send_base+1){
             //     stopTimer(A);
                 
@@ -213,11 +218,12 @@ public class StudentNetworkSimulator extends NetworkSimulator
             //     send_base = packet.getAcknum();
             //     // LPS=send_base+WindowSize-1;
             // }
-        }else{
-            toLayer3(A,sender_buffer.get(send_base));
-            stopTimer(A);
-            startTimer(A, RxmtInterval);
         }
+        // else{
+        //     toLayer3(A,sender_buffer.get(send_base));
+        //     stopTimer(A);
+        //     startTimer(A, RxmtInterval);
+        // }
 
     }
 
