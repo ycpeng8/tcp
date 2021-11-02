@@ -256,9 +256,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
         // if packet is corrupted
         if (isCorrupted(packet))
         {
-            b_send_pkt(NPE);
+            System.out.println("bInput(): B getting a corrupted pkt");
             return;
         }
+
+        System.out.println("bInput(): B getting pkt" + packet.getSeqnum() + ", expecting pkt" + NPE);
 
         int this_seqnum = packet.getSeqnum();
         if (((NPE < LPA) && (this_seqnum >= NPE) && (this_seqnum <= LPA)) || ((NPE > LPA) && (this_seqnum >= NPE || this_seqnum <= LPA)))
@@ -288,6 +290,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     if (this_seqnum == receiver_window.get(i).getSeqnum())
                     {
                         // if packet is duplicate
+                        System.out.println("bInput(): getting a duplicate pkt" + this_seqnum);
                         b_send_pkt(NPE);
                         return;
                     }
@@ -317,7 +320,15 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     receiver_window.addLast(packet);
                 }
 
-                while (receiver_window != null)
+                // test
+                System.out.print("bInput(): receiver window: ");
+                for (int i = 0; i < receiver_window.size(); i++)
+                {
+                    System.out.print(receiver_window.get(i).getSeqnum() + " ");
+                }
+                System.out.println();
+
+                while (receiver_window.size() != 0)
                 {
                     if (receiver_window.get(0).getSeqnum() != NPE)
                     {
