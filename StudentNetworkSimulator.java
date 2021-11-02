@@ -131,6 +131,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         b_checksum = seqnum + b_acknum;
         Packet sndpkt = new Packet(seqnum, b_acknum, b_checksum);
         toLayer3(B, sndpkt);
+        Num_Ackpkt_sentBy_B++;
 
         return;
     }
@@ -263,6 +264,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         if (isCorrupted(packet))
         {
             System.out.println("bInput(): B getting a corrupted pkt");
+            Num_corrupted_pkt++;
             return;
         }
 
@@ -279,6 +281,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     LPA = (LPA + 1) % LimitSeqNo;
                     b_send_pkt(NPE);
                     toLayer5(packet.getPayload());
+                    Num_delivered_to_Layter5_atB++;
                     return;
                 }
                 else
@@ -345,6 +348,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     NPE = (NPE + 1) % LimitSeqNo;
                     LPA = (LPA + 1) % LimitSeqNo;
                     toLayer5(receiver_window.get(0).getPayload());
+                    Num_delivered_to_Layter5_atB++;
                     receiver_window.remove();
                 }
                 b_send_pkt(NPE);
@@ -359,6 +363,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 NPE = (NPE + 1) % LimitSeqNo;
                 LPA = (LPA + 1) % LimitSeqNo;
                 toLayer5(packet.getPayload());
+                Num_delivered_to_Layter5_atB++;
                 b_send_pkt(NPE);
             }
             else
@@ -392,9 +397,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
         System.out.println("\n\n===============STATISTICS=======================");
         System.out.println("Number of original packets transmitted by A:" + "<YourVariableHere>");
         System.out.println("Number of retransmissions by A:" + "<YourVariableHere>");
-        System.out.println("Number of data packets delivered to layer 5 at B:" + "<YourVariableHere>");
-        System.out.println("Number of ACK packets sent by B:" + "<YourVariableHere>");
-        System.out.println("Number of corrupted packets:" + "<YourVariableHere>");
+        System.out.println("Number of data packets delivered to layer 5 at B:" + Num_delivered_to_Layter5_atB);
+        System.out.println("Number of ACK packets sent by B:" + Num_Ackpkt_sentBy_B);
+        System.out.println("Number of corrupted packets:" + Num_corrupted_pkt);
         System.out.println("Ratio of lost packets:" + "<YourVariableHere>");
         System.out.println("Ratio of corrupted packets:" + "<YourVariableHere>");
         System.out.println("Average RTT:" + "<YourVariableHere>");
