@@ -208,9 +208,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 send_base += (tmpAck - send_base_Seq) ;
             }
             else{
-                toLayer3(A,sender_buffer.get(send_base));
-                stopTimer(A);
-                startTimer(A, RxmtInterval);
+                if(send_base < sender_buffer.size()){
+                    toLayer3(A,sender_buffer.get(send_base));
+                    stopTimer(A);
+                    startTimer(A, RxmtInterval);
+                }
             }
             // if(packet.getAcknum() >= send_base+1){
             //     stopTimer(A);
