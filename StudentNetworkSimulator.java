@@ -278,6 +278,8 @@ public class StudentNetworkSimulator extends NetworkSimulator {
                     toLayer5(receiver_window.get(i).getPayload());
                     receiver_window.remove();
                 }
+                b_send_pkt(NPE);
+                return;
             }
             
         }
