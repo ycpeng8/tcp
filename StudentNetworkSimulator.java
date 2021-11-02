@@ -65,6 +65,18 @@ public class StudentNetworkSimulator extends NetworkSimulator {
     // state information for A or B.
     // Also add any necessary methods (e.g. checksum of a String)
 
+    /** statistical variables  **/
+    private int Num_originalPkt_transBy_A = 0;
+    private int Num_retransBy_A = 0;
+    private int Num_delivered_to_Layter5_atB = 0;
+    private int Num_Ackpkt_sentBy_B = 0;
+    private int Num_corrupted_pkt = 0;
+    private double loss_ratio = 0;
+    private double corrupted_ratio = 0;
+    private double avg_rtt = 0;
+    private double avg_communication_time = 0;
+    /**  **/
+
     /** A's states **/
 
     private LinkedList<Packet> sender_buffer = new LinkedList<>();
@@ -154,7 +166,6 @@ public class StudentNetworkSimulator extends NetworkSimulator {
             int tmpAck = packet.getAcknum();
             if(tmpAck >= send_base_Seq+1){
                 stopTimer(A);
-                
                 send_base += (tmpAck - send_base_Seq) ;
             }
             // if(packet.getAcknum() >= send_base+1){
@@ -278,8 +289,6 @@ public class StudentNetworkSimulator extends NetworkSimulator {
                     toLayer5(receiver_window.get(i).getPayload());
                     receiver_window.remove();
                 }
-                b_send_pkt(NPE);
-                return;
             }
             
         }
