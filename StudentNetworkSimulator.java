@@ -346,6 +346,20 @@ public class StudentNetworkSimulator extends NetworkSimulator
             }
             
         }
+        else if (NPE == LPA)
+        {
+            if (this_seqnum == NPE)
+            {
+                NPE = (NPE + 1) % LimitSeqNo;
+                LPA = (LPA + 1) % LimitSeqNo;
+                toLayer5(packet.getPayload());
+                b_send_pkt(NPE);
+            }
+            else
+            {
+                b_send_pkt(NPE);
+            }
+        }
         // if packet is out of receiver_window
         else
         {
