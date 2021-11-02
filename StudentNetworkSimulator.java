@@ -278,8 +278,10 @@ public class StudentNetworkSimulator extends NetworkSimulator
         System.out.println("bInput(): B getting pkt" + packet.getSeqnum() + ", expecting pkt" + NPE);
 
         int this_seqnum = packet.getSeqnum();
+        // if this is not a stop-and-wait model and the packet is in the receiver window 
         if (((NPE < LPA) && (this_seqnum >= NPE) && (this_seqnum <= LPA)) || ((NPE > LPA) && (this_seqnum >= NPE || this_seqnum <= LPA)))
         {
+            // if the size of rcvwin is 0, the operation will be easy and I take it out as one part
             if (receiver_window.size() == 0)
             {
                 if (this_seqnum == NPE)
@@ -298,19 +300,22 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     return;
                 }
             }
+            // if the size of rcvwin is not 0
             else
             {
                 int length = receiver_window.size();
+                // put the packet into rcvwin
                 for (int i = 0; i < length; i++)
                 {
+                    // if packet is duplicate, drop it and send an ACK
                     if (this_seqnum == receiver_window.get(i).getSeqnum())
                     {
-                        // if packet is duplicate
                         System.out.println("bInput(): getting a duplicate pkt" + this_seqnum);
                         b_send_pkt(NPE);
                         return;
                     }
                     
+                    // if packet is new, put it into rcvwin in order
                     if (NPE < LPA)
                     {
                         if (this_seqnum < receiver_window.get(i).getSeqnum())
@@ -344,6 +349,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 }
                 System.out.println();
 
+                /* 
+                 * iterate the rcvwin. 
+                 * if B has the packet of NPE, send its ACK
+                 * if not, stop iterate and send ACK NPE 
+                 */
                 while (receiver_window.size() != 0)
                 {
                     if (receiver_window.get(0).getSeqnum() != NPE)
@@ -363,6 +373,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
             }
             
         }
+        // if this is a stop-and-wait model
         else if (NPE == LPA)
         {
             if (this_seqnum == NPE)
