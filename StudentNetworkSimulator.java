@@ -147,6 +147,7 @@ public class StudentNetworkSimulator extends NetworkSimulator {
     // (i.e. as a result of a toLayer3() being done by a B-side procedure)
     // arrives at the A-side. "packet" is the (possibly corrupted) packet
     // sent from the B-side.
+<<<<<<< HEAD
     protected void aInput(Packet packet) {
         if (Checksumming(packet) == packet.getChecksum()) {
             if (packet.getAcknum() >= send_base + 1) {
@@ -157,6 +158,27 @@ public class StudentNetworkSimulator extends NetworkSimulator {
             }
         } else {
             toLayer3(A, sender_buffer.get(send_base));
+=======
+    protected void aInput(Packet packet)
+    {
+        if(Checksumming(packet) == packet.getChecksum()){
+            int send_base_Seq = send_base % LimitSeqNo;
+            int tmpAck = packet.getAcknum();
+            if(tmpAck >= send_base_Seq+1){
+                stopTimer(A);
+                
+                send_base += (tmpAck - send_base_Seq) ;
+            }
+            // if(packet.getAcknum() >= send_base+1){
+            //     stopTimer(A);
+                
+                
+            //     send_base = packet.getAcknum();
+            //     // LPS=send_base+WindowSize-1;
+            // }
+        }else{
+            toLayer3(A,sender_buffer.get(send_base));
+>>>>>>> 7e02891b880024301f511fcae491ac0a2131f458
             stopTimer(A);
             startTimer(A, RxmtInterval);
         }
