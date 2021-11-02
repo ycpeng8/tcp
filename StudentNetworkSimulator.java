@@ -202,6 +202,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
             if(send_base_Seq >= WindowSize && tmpAck < WindowSize){
                 stopTimer(A);
                 send_base += LimitSeqNo - send_base_Seq + tmpAck;
+                if(send_base < sender_buffer.size()){
+                    toLayer3(A,sender_buffer.get(send_base));
+                    stopTimer(A);
+                    startTimer(A, RxmtInterval);
+                }
             }
             else if(tmpAck >= send_base_Seq+1){
                 stopTimer(A);
