@@ -165,13 +165,16 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the data in such a message is delivered in-order, and correctly, to
     // the receiving upper layer.
     protected void aOutput(Message message) {
-        System.out.println("+++++++++++++++++");
+        // System.out.println("+++++++++++++++++");
         next_seq = LPS % LimitSeqNo;
         Packet sender_packet = new Packet(next_seq, 0, -1, message.getData());
         sender_packet.setChecksum(Checksumming(sender_packet));
         sender_buffer.add(sender_packet);
-        System.out.println("sender buffer size is " + sender_buffer.size());
-        System.out.println("LPS is " + LPS);
+        // System.out.println("sender buffer size is " + sender_buffer.size());
+        // System.out.println("LPS is " + LPS);
+        // System.out.println("get payload " + sender_buffer.get(LPS).getPayload());
+        // System.out.println("Send_base is" + send_base);
+        // System.out.println("window siez is " + WindowSize);
         for (; LPS < sender_buffer.size() && LPS < send_base + WindowSize; LPS++) {
             if (sender_buffer.get(LPS) != null) {
                 // if(SWS[LPS % WindowSize] == null){
@@ -195,7 +198,12 @@ public class StudentNetworkSimulator extends NetworkSimulator
         if(Checksumming(packet) == packet.getChecksum()){
             int send_base_Seq = send_base % LimitSeqNo;
             int tmpAck = packet.getAcknum();
-            if(tmpAck >= send_base_Seq+1){
+            System.out.println("get ack num "+tmpAck);
+            if(send_base_Seq >= WindowSize && tmpAck < WindowSize){
+                stopTimer(A);
+                send_base += LimitSeqNo - send_base_Seq + tmpAck;
+            }
+            else if(tmpAck >= send_base_Seq+1){
                 stopTimer(A);
                 send_base += (tmpAck - send_base_Seq) ;
             }
