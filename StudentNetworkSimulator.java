@@ -306,10 +306,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     receiver_window.addLast(packet);
                 }
 
-                int length_start_ack = receiver_window.size();
-                for (int i = 0; i < length_start_ack; i++)
+                while (receiver_window != null)
                 {
-                    if (receiver_window.get(i).getSeqnum() != NPE)
+                    if (receiver_window.get(0).getSeqnum() != NPE)
                     {
                         b_send_pkt(NPE);
                         return;
@@ -317,7 +316,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
 
                     NPE = (NPE + 1) % LimitSeqNo;
                     LPA = (LPA + 1) % LimitSeqNo;
-                    toLayer5(receiver_window.get(i).getPayload());
+                    toLayer5(receiver_window.get(0).getPayload());
                     receiver_window.remove();
                 }
                 b_send_pkt(NPE);
