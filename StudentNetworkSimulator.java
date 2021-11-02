@@ -107,6 +107,15 @@ public class StudentNetworkSimulator extends NetworkSimulator
     private double corrupted_ratio = 0;
     private double avg_rtt = 0;
     private double avg_communication_time = 0;
+
+    private Map<Integer,Double> rtt_map = new HashMap<Integer,Double>();
+    private double rttCount = 0.0;
+    private double total_rtt = 0.0;
+
+
+    private Map<Integer,Double> commun_Map = new HashMap<Integer,Double>();
+    private double communCount = 0;
+    private double total_commun = 0.0;
     /**  **/
 
     /** A's states **/
@@ -177,11 +186,15 @@ public class StudentNetworkSimulator extends NetworkSimulator
         // System.out.println("window siez is " + WindowSize);
         for (; LPS < sender_buffer.size() && LPS < send_base + WindowSize; LPS++) {
             if (sender_buffer.get(LPS) != null) {
-                // if(SWS[LPS % WindowSize] == null){
-                // SWS[LPS % WindowSize] = sender_buffer.get(LPS);
-                // }
+                Num_originalPkt_transBy_A++;
                 toLayer3(A, sender_buffer.get(LPS));
-                // LPS++;
+
+                rtt_map.put(LPS,getTime());
+                rttCount++;
+                commun_Map.put(LPS,getTime());
+                communCount++;
+
+
                 stopTimer(A);
                 startTimer(A, RxmtInterval);
             }
@@ -201,27 +214,66 @@ public class StudentNetworkSimulator extends NetworkSimulator
             System.out.println("get ack num "+tmpAck);
             if(send_base_Seq >= WindowSize && tmpAck < WindowSize){
                 stopTimer(A);
+
+                int last_send_base = send_base;
                 send_base += LimitSeqNo - send_base_Seq + tmpAck;
+
+                /* compute time */
+                for(;last_send_base<send_base;last_send_base++){
+                    total_rtt += getTime() - rtt_map.get(last_send_base);
+                    rttCount++;
+                    total_commun += getTime() - commun_Map.get(last_send_base);
+                    communCount++;
+                }
+
                 if(send_base < sender_buffer.size()){
+                    Num_originalPkt_transBy_A++;
                     toLayer3(A,sender_buffer.get(send_base));
+
+                    rtt_map.put(send_base,getTime());
+                    rttCount++;
+                    commun_Map.put(send_base,getTime());
+                    communCount++;
+
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
                 }
             }
             else if(tmpAck >= send_base_Seq+1){
                 stopTimer(A);
+                int last_send_base = send_base;
                 send_base += (tmpAck - send_base_Seq) ;
+
+                /* compute time */
+                for(;last_send_base<send_base;last_send_base++){
+                    total_rtt += getTime() - rtt_map.get(last_send_base);
+                    rttCount++;
+                    total_commun += getTime() - commun_Map.get(last_send_base);
+                    communCount++;
+                }
+
+
                 if(send_base < sender_buffer.size()){
+                    Num_originalPkt_transBy_A++;
                     toLayer3(A,sender_buffer.get(send_base));
+
+                    rtt_map.put(send_base,getTime());
+                    rttCount++;
+                    commun_Map.put(send_base,getTime());
+                    communCount++;
+
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
                 }
+
             }
             else{
                 if(send_base < sender_buffer.size()){
                     toLayer3(A,sender_buffer.get(send_base));
+
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
+                    Num_retransBy_A++;
                 }
             }
             // if(packet.getAcknum() >= send_base+1){
@@ -232,11 +284,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
             //     // LPS=send_base+WindowSize-1;
             // }
         }
-        // else{
-        //     toLayer3(A,sender_buffer.get(send_base));
-        //     stopTimer(A);
-        //     startTimer(A, RxmtInterval);
-        // }
+        else{
+            Num_corrupted_pkt++;
+        }
 
     }
 
@@ -248,6 +298,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         toLayer3(A, sender_buffer.get(send_base));
         stopTimer(A);
         startTimer(A, RxmtInterval);
+        Num_retransBy_A++;
             
 
     }
@@ -418,15 +469,15 @@ public class StudentNetworkSimulator extends NetworkSimulator
         // TO PRINT THE STATISTICS, FILL IN THE DETAILS BY PUTTING VARIBALE NAMES. DO
         // NOT CHANGE THE FORMAT OF PRINTED OUTPUT
         System.out.println("\n\n===============STATISTICS=======================");
-        System.out.println("Number of original packets transmitted by A:" + "<YourVariableHere>");
-        System.out.println("Number of retransmissions by A:" + "<YourVariableHere>");
+        System.out.println("Number of original packets transmitted by A:" + Num_originalPkt_transBy_A);
+        System.out.println("Number of retransmissions by A:" + Num_retransBy_A);
         System.out.println("Number of data packets delivered to layer 5 at B:" + Num_delivered_to_Layter5_atB);
         System.out.println("Number of ACK packets sent by B:" + Num_Ackpkt_sentBy_B);
         System.out.println("Number of corrupted packets:" + Num_corrupted_pkt);
-        System.out.println("Ratio of lost packets:" + "<YourVariableHere>");
-        System.out.println("Ratio of corrupted packets:" + "<YourVariableHere>");
-        System.out.println("Average RTT:" + "<YourVariableHere>");
-        System.out.println("Average communication time:" + "<YourVariableHere>");
+        System.out.println("Ratio of lost packets:" + (Num_retransBy_A - Num_corrupted_pkt)/((Num_originalPkt_transBy_A+Num_retransBy_A)+Num_Ackpkt_sentBy_B) );
+        System.out.println("Ratio of corrupted packets:" + Num_corrupted_pkt / ((Num_originalPkt_transBy_A+Num_retransBy_A)+ Num_Ackpkt_sentBy_B-(Num_retransBy_A-Num_corrupted_pkt) ));
+        System.out.println("Average RTT:" + total_rtt/rttCount);
+        System.out.println("Average communication time:" + total_commun/communCount);
         System.out.println("==================================================");
 
         // PRINT YOUR OWN STATISTIC HERE TO CHECK THE CORRECTNESS OF YOUR PROGRAM
