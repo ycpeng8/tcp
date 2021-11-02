@@ -123,14 +123,13 @@ public class StudentNetworkSimulator extends NetworkSimulator
     private int RWS; // receive window size
     private int LPA; // last packet acceptable
     private int NPE; // next packet expected
-    private int b_seqnum; // b's seqnum
+    private int b_acknum; // b's acknum
     private int b_checksum; // b's checksum
     private LinkedList<Packet> receiver_window = new LinkedList<Packet>(); // window of receiving packets from layer 3
 
-    private void b_send_pkt(int acknum) {
-        b_seqnum = (b_seqnum + 1) % LimitSeqNo;
-        b_checksum = b_seqnum + acknum;
-        Packet sndpkt = new Packet(b_seqnum, acknum, b_checksum);
+    private void b_send_pkt(int seqnum) {
+        b_checksum = seqnum + b_acknum;
+        Packet sndpkt = new Packet(seqnum, b_acknum, b_checksum);
         toLayer3(B, sndpkt);
 
         return;
@@ -355,7 +354,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         RWS = WindowSize;
         NPE = 0;
         LPA = RWS + NPE - 1;
-        b_seqnum = -1;
+        b_acknum = 1;
     }
 
     // Use to print final statistics
