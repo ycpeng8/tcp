@@ -197,7 +197,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
     {
         if(Checksumming(packet) == packet.getChecksum()){
             int send_base_Seq = send_base % LimitSeqNo;
-            int tmpAck = packet.getAcknum();
+            int tmpAck = packet.getSeqnum();
             System.out.println("get ack num "+tmpAck);
             if(send_base_Seq >= WindowSize && tmpAck < WindowSize){
                 stopTimer(A);
