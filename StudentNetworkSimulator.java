@@ -227,8 +227,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the retransmission of packets. See startTimer() and stopTimer(), above,
     // for how the timer is started and stopped.
     protected void aTimerInterrupt() {
-        toLayer3(A, sender_buffer.get(LPS));
+
+        toLayer3(A, sender_buffer.get(send_base));
+
         stopTimer(A);
+
         startTimer(A, RxmtInterval);
             
 
