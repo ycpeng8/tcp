@@ -219,21 +219,34 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 send_base += LimitSeqNo - send_base_Seq + tmpAck;
 
                 /* compute time */
+
+                // total_rtt += getTime() - rtt_map.get(last_send_base);
+                // rttCount++;
+
                 for(;last_send_base<send_base;last_send_base++){
-                    total_rtt += getTime() - rtt_map.get(last_send_base);
-                    rttCount++;
+                    double tmptime = rtt_map.get(last_send_base);
+                    if(tmptime != -1.0){
+                        total_rtt += getTime() - tmptime;
+                        rtt_map.put(last_send_base,-1.0);
+                        rttCount++;
+                    }
                     total_commun += getTime() - commun_Map.get(last_send_base);
                     communCount++;
                 }
+
+                // if(commun_Map.containsKey(last_send_base)){
+                //     total_commun += getTime() - commun_Map.get(last_send_base);
+                //     communCount++;
+                // }
 
                 if(send_base < sender_buffer.size()){
                     Num_originalPkt_transBy_A++;
                     toLayer3(A,sender_buffer.get(send_base));
 
                     rtt_map.put(send_base,getTime());
-                    rttCount++;
-                    commun_Map.put(send_base,getTime());
-                    communCount++;
+                    // rttCount++;
+                    // commun_Map.put(send_base,getTime());
+                    // communCount++;
 
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
@@ -243,14 +256,29 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 stopTimer(A);
                 int last_send_base = send_base;
                 send_base += (tmpAck - send_base_Seq) ;
+                
+                // if(rtt_map.Constants(last_send_base)){
+                //     total_rtt += getTime() - rtt_map.get(last_send_base);
+                //     rttCount++;
+                // }
 
                 /* compute time */
                 for(;last_send_base<send_base;last_send_base++){
-                    total_rtt += getTime() - rtt_map.get(last_send_base);
-                    rttCount++;
+                    double tmptime = rtt_map.get(last_send_base);
+                    if(tmptime != -1.0){
+                        total_rtt += getTime() - tmptime;
+                        rtt_map.put(last_send_base,-1.0);
+                        rttCount++;
+                    }
                     total_commun += getTime() - commun_Map.get(last_send_base);
                     communCount++;
                 }
+
+                // if(commun_Map.containsKey(last_send_base)){
+                //     total_commun += getTime() - commun_Map.get(last_send_base);
+                //     communCount++;
+                // }
+
 
 
                 if(send_base < sender_buffer.size()){
@@ -258,9 +286,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
                     toLayer3(A,sender_buffer.get(send_base));
 
                     rtt_map.put(send_base,getTime());
-                    rttCount++;
-                    commun_Map.put(send_base,getTime());
-                    communCount++;
+                    // rttCount++;
+                    // commun_Map.put(send_base,getTime());
+                    // communCount++;
 
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
@@ -270,6 +298,8 @@ public class StudentNetworkSimulator extends NetworkSimulator
             else{
                 if(send_base < sender_buffer.size()){
                     toLayer3(A,sender_buffer.get(send_base));
+
+                    rtt_map.put(send_base,getTime());
 
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
@@ -296,6 +326,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // for how the timer is started and stopped.
     protected void aTimerInterrupt() {
         toLayer3(A, sender_buffer.get(send_base));
+
+        rtt_map.put(send_base,getTime());
+
         stopTimer(A);
         startTimer(A, RxmtInterval);
         Num_retransBy_A++;
@@ -468,14 +501,16 @@ public class StudentNetworkSimulator extends NetworkSimulator
     protected void Simulation_done() {
         // TO PRINT THE STATISTICS, FILL IN THE DETAILS BY PUTTING VARIBALE NAMES. DO
         // NOT CHANGE THE FORMAT OF PRINTED OUTPUT
+        double  Ratio_lost = (double)(Num_retransBy_A - Num_corrupted_pkt)/(double)((Num_originalPkt_transBy_A+Num_retransBy_A)+Num_Ackpkt_sentBy_B);
+        double  Ratio_corrupted = (double)Num_corrupted_pkt / (double)((Num_originalPkt_transBy_A+Num_retransBy_A)+ Num_Ackpkt_sentBy_B-(Num_retransBy_A-Num_corrupted_pkt));
         System.out.println("\n\n===============STATISTICS=======================");
         System.out.println("Number of original packets transmitted by A:" + Num_originalPkt_transBy_A);
         System.out.println("Number of retransmissions by A:" + Num_retransBy_A);
         System.out.println("Number of data packets delivered to layer 5 at B:" + Num_delivered_to_Layter5_atB);
         System.out.println("Number of ACK packets sent by B:" + Num_Ackpkt_sentBy_B);
         System.out.println("Number of corrupted packets:" + Num_corrupted_pkt);
-        System.out.println("Ratio of lost packets:" + (Num_retransBy_A - Num_corrupted_pkt)/((Num_originalPkt_transBy_A+Num_retransBy_A)+Num_Ackpkt_sentBy_B) );
-        System.out.println("Ratio of corrupted packets:" + Num_corrupted_pkt / ((Num_originalPkt_transBy_A+Num_retransBy_A)+ Num_Ackpkt_sentBy_B-(Num_retransBy_A-Num_corrupted_pkt) ));
+        System.out.println("Ratio of lost packets:" + Ratio_lost);
+        System.out.println("Ratio of corrupted packets:" + Ratio_corrupted);
         System.out.println("Average RTT:" + total_rtt/rttCount);
         System.out.println("Average communication time:" + total_commun/communCount);
         System.out.println("==================================================");
