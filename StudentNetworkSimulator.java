@@ -239,18 +239,18 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 //     communCount++;
                 // }
 
-                if(send_base < sender_buffer.size()){
-                    Num_originalPkt_transBy_A++;
-                    toLayer3(A,sender_buffer.get(send_base));
+                // if(send_base < sender_buffer.size()){
+                //     Num_originalPkt_transBy_A++;
+                //     toLayer3(A,sender_buffer.get(send_base));
 
-                    rtt_map.put(send_base,getTime());
-                    // rttCount++;
-                    // commun_Map.put(send_base,getTime());
-                    // communCount++;
+                //     rtt_map.put(send_base,getTime());
+                //     // rttCount++;
+                //     // commun_Map.put(send_base,getTime());
+                //     // communCount++;
 
-                    stopTimer(A);
-                    startTimer(A, RxmtInterval);
-                }
+                //     stopTimer(A);
+                //     startTimer(A, RxmtInterval);
+                // }
             }
             else if(tmpAck >= send_base_Seq+1){
                 stopTimer(A);
@@ -281,18 +281,18 @@ public class StudentNetworkSimulator extends NetworkSimulator
 
 
 
-                if(send_base < sender_buffer.size()){
-                    Num_originalPkt_transBy_A++;
-                    toLayer3(A,sender_buffer.get(send_base));
+                // if(send_base < sender_buffer.size()){
+                //     Num_originalPkt_transBy_A++;
+                //     toLayer3(A,sender_buffer.get(send_base));
 
-                    rtt_map.put(send_base,getTime());
-                    // rttCount++;
-                    // commun_Map.put(send_base,getTime());
-                    // communCount++;
+                //     rtt_map.put(send_base,getTime());
+                //     // rttCount++;
+                //     // commun_Map.put(send_base,getTime());
+                //     // communCount++;
 
-                    stopTimer(A);
-                    startTimer(A, RxmtInterval);
-                }
+                //     stopTimer(A);
+                //     startTimer(A, RxmtInterval);
+                // }
 
             }
             else{
