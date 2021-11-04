@@ -190,9 +190,9 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 toLayer3(A, sender_buffer.get(LPS));
 
                 rtt_map.put(LPS,getTime());
-                rttCount++;
+                // rttCount++;
                 commun_Map.put(LPS,getTime());
-                communCount++;
+                // communCount++;
 
 
                 stopTimer(A);
@@ -221,16 +221,18 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 /* compute time */
 
                 // total_rtt += getTime() - rtt_map.get(last_send_base);
-                // rttCount++;
+                rttCount++;
 
                 for(;last_send_base<send_base;last_send_base++){
-                    double tmptime = rtt_map.get(last_send_base);
+                    // double tmptime = rtt_map.get(last_send_base);
+                    double tmptime = rtt_map.get(send_base-1);
                     if(tmptime != -1.0){
                         total_rtt += getTime() - tmptime;
                         rtt_map.put(last_send_base,-1.0);
-                        rttCount++;
+                        // rttCount++;
                     }
-                    total_commun += getTime() - commun_Map.get(last_send_base);
+                    // total_commun += getTime() - commun_Map.get(last_send_base);
+                    total_commun += getTime() - commun_Map.get(send_base-1);
                     communCount++;
                 }
 
@@ -262,15 +264,18 @@ public class StudentNetworkSimulator extends NetworkSimulator
                 //     rttCount++;
                 // }
 
+                rttCount++;
                 /* compute time */
                 for(;last_send_base<send_base;last_send_base++){
-                    double tmptime = rtt_map.get(last_send_base);
+                    // double tmptime = rtt_map.get(last_send_base);
+                    double tmptime = rtt_map.get(send_base-1);
                     if(tmptime != -1.0){
                         total_rtt += getTime() - tmptime;
                         rtt_map.put(last_send_base,-1.0);
-                        rttCount++;
+                        // rttCount++;
                     }
-                    total_commun += getTime() - commun_Map.get(last_send_base);
+                    // total_commun += getTime() - commun_Map.get(last_send_base);
+                    total_commun += getTime() - commun_Map.get(send_base-1);
                     communCount++;
                 }
 
@@ -517,7 +522,6 @@ public class StudentNetworkSimulator extends NetworkSimulator
         System.out.println("==================================================");
 
         // PRINT YOUR OWN STATISTIC HERE TO CHECK THE CORRECTNESS OF YOUR PROGRAM
-        System.out.println("\nEXTRA:");
         // EXAMPLE GIVEN BELOW
         // System.out.println("Example statistic you want to check e.g. number of ACK packets received by A :" + "<YourVariableHere>");
     }
