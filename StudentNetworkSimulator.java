@@ -328,6 +328,7 @@ public class StudentNetworkSimulator extends NetworkSimulator
         }
         else{
             Num_corrupted_pkt++;
+            System.out.println("A received a corrupted packet.");
         }
 
     }
