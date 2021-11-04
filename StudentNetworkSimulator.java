@@ -174,34 +174,18 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the data in such a message is delivered in-order, and correctly, to
     // the receiving upper layer.
     protected void aOutput(Message message) {
-        // System.out.println("+++++++++++++++++");
+
         next_seq = sender_buffer.size() % LimitSeqNo;
-        // System.out.println("buffer size " + sender_buffer.size());
-        //  System.out.println("get next_seq " + next_seq);
-        
         Packet sender_packet = new Packet(next_seq, 0, -1, message.getData());
-        // System.out.println("get payload" + sender_packet.getPayload());
         sender_packet.setChecksum(Checksumming(sender_packet));
         sender_buffer.add(sender_packet);
-        
-        // System.out.println("sender buffer size is " + sender_buffer.size());
-        // System.out.println("LPS is " + LPS);
-
-       
-        // System.out.println("get payload " + sender_buffer.get(LPS).getPayload());
-        // System.out.println("Send_base is" + send_base);
-        // System.out.println("window siez is " + WindowSize);
+        //If thes is new packet from layer 5 in sendwindow, then send it to B
         for (; LPS < sender_buffer.size() && LPS < send_base + WindowSize; LPS++) {
             if (sender_buffer.get(LPS) != null) {
                 Num_originalPkt_transBy_A++;
                 toLayer3(A, sender_buffer.get(LPS));
-
                 rtt_map.put(LPS,getTime());
-                // rttCount++;
                 commun_Map.put(LPS,getTime());
-                // communCount++;
-
-
                 stopTimer(A);
                 startTimer(A, RxmtInterval);
             }
@@ -215,116 +199,54 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // sent from the B-side.
     protected void aInput(Packet packet)
     {
+        /* SR sends culmulative ack. Update send_abse according to the ack*/
         if(Checksumming(packet) == packet.getChecksum()){
             int send_base_Seq = send_base % LimitSeqNo;
             int tmpAck = packet.getSeqnum();
             System.out.println("get ack num "+tmpAck);
-            if(send_base_Seq >= WindowSize && tmpAck < WindowSize){
-                stopTimer(A);
-
+            if(send_base_Seq >= WindowSize && tmpAck < WindowSize){ // Since the sequence number is wrapped so am the ack number. 
+                stopTimer(A);                                       // The situation that ack number is less than Send base can occur
                 int last_send_base = send_base;
                 send_base += LimitSeqNo - send_base_Seq + tmpAck;
-
                 /* compute time */
-
-                // total_rtt += getTime() - rtt_map.get(last_send_base);
                 rttCount++;
-
                 for(;last_send_base<send_base;last_send_base++){
-                    // double tmptime = rtt_map.get(last_send_base);
                     double tmptime = rtt_map.get(send_base-1);
                     if(tmptime != -1.0){
                         total_rtt += getTime() - tmptime;
                         rtt_map.put(last_send_base,-1.0);
-                        // rttCount++;
                     }
-                    // total_commun += getTime() - commun_Map.get(last_send_base);
+
                     total_commun += getTime() - commun_Map.get(send_base-1);
                     communCount++;
                 }
-
-                // if(commun_Map.containsKey(last_send_base)){
-                //     total_commun += getTime() - commun_Map.get(last_send_base);
-                //     communCount++;
-                // }
-
-                // if(send_base < sender_buffer.size()){
-                //     Num_originalPkt_transBy_A++;
-                //     toLayer3(A,sender_buffer.get(send_base));
-
-                //     rtt_map.put(send_base,getTime());
-                //     // rttCount++;
-                //     // commun_Map.put(send_base,getTime());
-                //     // communCount++;
-
-                //     stopTimer(A);
-                //     startTimer(A, RxmtInterval);
-                // }
             }
-            else if(tmpAck >= send_base_Seq+1){
+            else if(tmpAck >= send_base_Seq+1){ // Normal situation that ack is larger than send_base seq 
                 stopTimer(A);
                 int last_send_base = send_base;
                 send_base += (tmpAck - send_base_Seq) ;
-                
-                // if(rtt_map.Constants(last_send_base)){
-                //     total_rtt += getTime() - rtt_map.get(last_send_base);
-                //     rttCount++;
-                // }
-
                 rttCount++;
                 /* compute time */
                 for(;last_send_base<send_base;last_send_base++){
-                    // double tmptime = rtt_map.get(last_send_base);
                     double tmptime = rtt_map.get(send_base-1);
                     if(tmptime != -1.0){
                         total_rtt += getTime() - tmptime;
                         rtt_map.put(last_send_base,-1.0);
-                        // rttCount++;
                     }
-                    // total_commun += getTime() - commun_Map.get(last_send_base);
                     total_commun += getTime() - commun_Map.get(send_base-1);
                     communCount++;
                 }
 
-                // if(commun_Map.containsKey(last_send_base)){
-                //     total_commun += getTime() - commun_Map.get(last_send_base);
-                //     communCount++;
-                // }
-
-
-
-                // if(send_base < sender_buffer.size()){
-                //     Num_originalPkt_transBy_A++;
-                //     toLayer3(A,sender_buffer.get(send_base));
-
-                //     rtt_map.put(send_base,getTime());
-                //     // rttCount++;
-                //     // commun_Map.put(send_base,getTime());
-                //     // communCount++;
-
-                //     stopTimer(A);
-                //     startTimer(A, RxmtInterval);
-                // }
-
             }
-            else{
+            else{// receive duplicate Ack and resend the send_base packet.
                 if(send_base < sender_buffer.size()){
                     toLayer3(A,sender_buffer.get(send_base));
-
                     rtt_map.put(send_base,getTime());
-
                     stopTimer(A);
                     startTimer(A, RxmtInterval);
                     Num_retransBy_A++;
                 }
             }
-            // if(packet.getAcknum() >= send_base+1){
-            //     stopTimer(A);
-                
-                
-            //     send_base = packet.getAcknum();
-            //     // LPS=send_base+WindowSize-1;
-            // }
         }
         else{
             Num_corrupted_pkt++;
@@ -337,12 +259,10 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // timer interrupt). You'll probably want to use this routine to control
     // the retransmission of packets. See startTimer() and stopTimer(), above,
     // for how the timer is started and stopped.
-    protected void aTimerInterrupt() {
+    protected void aTimerInterrupt() { //When timeout occurs, resend the send_base packet.
         System.out.println("Timeout!");
         toLayer3(A, sender_buffer.get(send_base));
-
         rtt_map.put(send_base,getTime());
-
         stopTimer(A);
         startTimer(A, RxmtInterval);
         Num_retransBy_A++;
@@ -537,10 +457,6 @@ public class StudentNetworkSimulator extends NetworkSimulator
         // PRINT YOUR OWN STATISTIC HERE TO CHECK THE CORRECTNESS OF YOUR PROGRAM
         // EXAMPLE GIVEN BELOW
         // System.out.println("\nEXTRA:");
-        // System.out.println("All rtt:" + total_rtt);
-        // System.out.println("counter for rtt:" + rttCount);
-        // System.out.println("All communication time:" + total_commun);
-        // System.out.println("counter for communication:" + communCount);
         // System.out.println("Example statistic you want to check e.g. number of ACK packets received by A :" + "<YourVariableHere>");
     }
 
