@@ -175,12 +175,19 @@ public class StudentNetworkSimulator extends NetworkSimulator
     // the receiving upper layer.
     protected void aOutput(Message message) {
         // System.out.println("+++++++++++++++++");
-        next_seq = LPS % LimitSeqNo;
+        next_seq = sender_buffer.size() % LimitSeqNo;
+        // System.out.println("buffer size " + sender_buffer.size());
+        //  System.out.println("get next_seq " + next_seq);
+        
         Packet sender_packet = new Packet(next_seq, 0, -1, message.getData());
+        // System.out.println("get payload" + sender_packet.getPayload());
         sender_packet.setChecksum(Checksumming(sender_packet));
         sender_buffer.add(sender_packet);
+        
         // System.out.println("sender buffer size is " + sender_buffer.size());
         // System.out.println("LPS is " + LPS);
+
+       
         // System.out.println("get payload " + sender_buffer.get(LPS).getPayload());
         // System.out.println("Send_base is" + send_base);
         // System.out.println("window siez is " + WindowSize);
@@ -507,7 +514,12 @@ public class StudentNetworkSimulator extends NetworkSimulator
     protected void Simulation_done() {
         // TO PRINT THE STATISTICS, FILL IN THE DETAILS BY PUTTING VARIBALE NAMES. DO
         // NOT CHANGE THE FORMAT OF PRINTED OUTPUT
-        double  Ratio_lost = (double)(Num_retransBy_A - Num_corrupted_pkt)/(double)((Num_originalPkt_transBy_A+Num_retransBy_A)+Num_Ackpkt_sentBy_B);
+        double  Ratio_lost = 0;
+        if(Num_retransBy_A - Num_corrupted_pkt < 0){
+            Ratio_lost = 0;
+        }else{
+            Ratio_lost = (double)(Num_retransBy_A - Num_corrupted_pkt)/(double)((Num_originalPkt_transBy_A+Num_retransBy_A)+Num_Ackpkt_sentBy_B);
+        }
         double  Ratio_corrupted = (double)Num_corrupted_pkt / (double)((Num_originalPkt_transBy_A+Num_retransBy_A)+ Num_Ackpkt_sentBy_B-(Num_retransBy_A-Num_corrupted_pkt));
         System.out.println("\n\n===============STATISTICS=======================");
         System.out.println("Number of original packets transmitted by A:" + Num_originalPkt_transBy_A);
@@ -523,6 +535,11 @@ public class StudentNetworkSimulator extends NetworkSimulator
 
         // PRINT YOUR OWN STATISTIC HERE TO CHECK THE CORRECTNESS OF YOUR PROGRAM
         // EXAMPLE GIVEN BELOW
+        // System.out.println("\nEXTRA:");
+        // System.out.println("All rtt:" + total_rtt);
+        // System.out.println("counter for rtt:" + rttCount);
+        // System.out.println("All communication time:" + total_commun);
+        // System.out.println("counter for communication:" + communCount);
         // System.out.println("Example statistic you want to check e.g. number of ACK packets received by A :" + "<YourVariableHere>");
     }
 
